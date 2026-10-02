@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SŌRIN 見積もり</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;margin:0;background:#f5f8f8;color:#16343a}
+.wrap{max-width:720px;margin:auto;padding:20px}
+h1{font-size:24px;margin:8px 0 20px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px #0000000d}
+h2{font-size:17px;margin:0 0 14px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan{border:2px solid #d9e2e4;border-radius:12px;background:#fff;padding:16px;text-align:center;font-size:17px;font-weight:700}
+.plan.selected{border-color:#168b8b;background:#eaf7f6}
+.plan small{display:block;font-size:12px;font-weight:400;margin-top:5px}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+input,select{box-sizing:border-box;width:100%;padding:12px;border:1px solid #ccd7d9;border-radius:9px;font-size:16px;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button.action{margin-top:8px;width:100%;padding:12px;border:0;border-radius:9px;background:#168b8b;color:white;font-size:15px;font-weight:700}
+.address{margin-top:8px;padding:10px;border-radius:8px;background:#f1f6f6;min-height:20px}
+.total{font-size:28px;font-weight:800;text-align:center;margin:8px 0}
+.note{font-size:12px;color:#607277;line-height:1.6}
+.item-add-row{grid-template-columns:2fr .7fr}
+.item-row{display:grid;grid-template-columns:1fr 52px 34px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #e7eeee}
+.item-name{font-size:14px}
+.item-qty{text-align:center;font-weight:700}
+.remove-item{width:34px;height:34px;padding:0;margin:0;border:0;border-radius:8px;background:#eef3f3;color:#37545a;font-size:18px}
+.date-row{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-bottom:10px}
+.price-detail{font-size:13px;line-height:1.8;margin-top:10px;padding:10px;border-radius:9px;background:#f1f6f6}
+@media(max-width:480px){.item-add-row{grid-template-columns:1fr 72px}.date-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>SŌRIN 見積もり</h1>
+
+<section class="card">
+<h2>プランを選択</h2>
+<div class="plans">
+<button type="button" class="plan selected" id="oki">おき楽<small>お客様もお手伝い・スタッフ1名<br>基本料金 8,000円</small></button>
+<button type="button" class="plan" id="raku">らく楽<small>搬出・搬入おまかせ<br>基本料金 10,000円</small></button>
+</div>
+</section>
+
+<section class="card">
+<h2>出発地</h2>
+<label>郵便番号</label>
+<div class="row">
+<input id="fromZip" inputmode="numeric" maxlength="8" placeholder="890-0000">
+<button type="button" class="action" id="fromGet">住所を取得</button>
+</div>
+<div class="address" id="fromAddress">住所未取得</div>
+<label>番地・建物名など</label>
+<input id="fromDetail" placeholder="○丁目○番○号 ○○マンション">
+<label>階数</label>
+<select id="fromFloor"></select>
+</section>
+
+<section class="card">
+<h2>到着地</h2>
+<label>郵便番号</label>
+<div class="row">
+<input id="toZip" inputmode="numeric" maxlength="8" placeholder="890-0000">
+<button type="button" class="action" id="toGet">住所を取得</button>
+</div>
+<div class="address" id="toAddress">住所未取得</div>
+<label>番地・建物名など</label>
+<input id="toDetail" placeholder="○丁目○番○号 ○○マンション">
+<label>階数</label>
+<select id="toFloor"></select>
+</section>
+
+<section class="card">
+<h2>希望日・時間</h2>
+<p class="note">第1希望〜第3希望まで入力できます。時間は作業開始の目安です。</p>
+<div class="date-row">
+  <input id="date1" type="date" aria-label="第1希望の日付">
+  <select id="time1">
+    <option value="">時間を選択</option>
+    <option value="午前（9:00〜12:00）">午前（9:00〜12:00）</option>
+    <option value="午後（12:00〜15:00）">午後（12:00〜15:00）</option>
+    <option value="夕方（15:00〜18:00）">夕方（15:00〜18:00）</option>
+  </select>
+</div>
+<div class="date-row">
+  <input id="date2" type="date" aria-label="第2希望の日付">
+  <select id="time2">
+    <option value="">時間を選択</option>
+    <option value="午前（9:00〜12:00）">午前（9:00〜12:00）</option>
+    <option value="午後（12:00〜15:00）">午後（12:00〜15:00）</option>
+    <option value="夕方（15:00〜18:00）">夕方（15:00〜18:00）</option>
+  </select>
+</div>
+<div class="date-row">
+  <input id="date3" type="date" aria-label="第3希望の日付">
+  <select id="time3">
+    <option value="">時間を選択</option>
+    <option value="午前（9:00〜12:00）">午前（9:00〜12:00）</option>
+    <option value="午後（12:00〜15:00）">午後（12:00〜15:00）</option>
+    <option value="夕方（15:00〜18:00）">夕方（15:00〜18:00）</option>
+  </select>
+</div>
+<p class="note">料金は第1希望の日程を基準に計算します。第2・第3希望の日程で料金区分が変わる場合は、確定時に調整します。</p>
+</section>
+
+<section class="card">
+<h2>荷物</h2>
+<div class="row item-add-row">
+  <select id="itemSelect">
+    <option value="">荷物を選択してください</option>
+    <optgroup label="冷蔵庫・洗濯機・大型家電"><option value="冷蔵庫（〜200L）">冷蔵庫（〜200L）</option><option value="冷蔵庫（201〜300L）">冷蔵庫（201〜300L）</option><option value="冷蔵庫（301〜400L）">冷蔵庫（301〜400L）</option><option value="冷蔵庫（401L〜）">冷蔵庫（401L〜）</option><option value="洗濯機（縦型）">洗濯機（縦型）</option><option value="洗濯機（ドラム式）">洗濯機（ドラム式）</option><option value="乾燥機">乾燥機</option><option value="電子レンジ">電子レンジ</option><option value="オーブンレンジ">オーブンレンジ</option><option value="食器洗い乾燥機">食器洗い乾燥機</option><option value="エアコン室内機">エアコン室内機</option><option value="エアコン室外機">エアコン室外機</option><option value="テレビ（〜32インチ）">テレビ（〜32インチ）</option><option value="テレビ（33〜50インチ）">テレビ（33〜50インチ）</option><option value="テレビ（51インチ〜）">テレビ（51インチ〜）</option></optgroup><optgroup label="家具"><option value="ベッド（シングル）">ベッド（シングル）</option><option value="ベッド（セミダブル）">ベッド（セミダブル）</option><option value="ベッド（ダブル）">ベッド（ダブル）</option><option value="ベッド（クイーン・キング）">ベッド（クイーン・キング）</option><option value="マットレス（シングル）">マットレス（シングル）</option><option value="マットレス（セミダブル）">マットレス（セミダブル）</option><option value="マットレス（ダブル）">マットレス（ダブル）</option><option value="マットレス（クイーン・キング）">マットレス（クイーン・キング）</option><option value="ソファ（1人掛け）">ソファ（1人掛け）</option><option value="ソファ（2〜3人掛け）">ソファ（2〜3人掛け）</option><option value="ソファ（4人掛け以上）">ソファ（4人掛け以上）</option><option value="ダイニングテーブル">ダイニングテーブル</option><option value="ローテーブル">ローテーブル</option><option value="デスク・学習机">デスク・学習机</option><option value="チェア・イス">チェア・イス</option><option value="テレビ台">テレビ台</option><option value="タンス・チェスト">タンス・チェスト</option><option value="衣装ケース">衣装ケース</option><option value="カラーボックス">カラーボックス</option><option value="本棚・ラック">本棚・ラック</option><option value="食器棚">食器棚</option><option value="レンジ台">レンジ台</option><option value="収納棚">収納棚</option><option value="ドレッサー">ドレッサー</option><option value="こたつ">こたつ</option><option value="鏡・姿見">鏡・姿見</option><option value="その他家具">その他家具</option></optgroup><optgroup label="家電・生活用品"><option value="炊飯器">炊飯器</option><option value="掃除機">掃除機</option><option value="扇風機・サーキュレーター">扇風機・サーキュレーター</option><option value="空気清浄機">空気清浄機</option><option value="加湿器">加湿器</option><option value="除湿機">除湿機</option><option value="ヒーター・ストーブ">ヒーター・ストーブ</option><option value="衣類乾燥除湿機">衣類乾燥除湿機</option><option value="パソコン・モニター">パソコン・モニター</option><option value="プリンター">プリンター</option><option value="ゲーム機">ゲーム機</option><option value="スピーカー">スピーカー</option><option value="自転車">自転車</option><option value="その他家電・生活用品">その他家電・生活用品</option></optgroup><optgroup label="荷物・箱"><option value="60サイズ段ボール">60サイズ段ボール</option><option value="80サイズ段ボール">80サイズ段ボール</option><option value="100サイズ段ボール">100サイズ段ボール</option><option value="120サイズ段ボール">120サイズ段ボール</option><option value="140サイズ段ボール">140サイズ段ボール</option><option value="布団・寝具">布団・寝具</option><option value="衣類ケース・衣装袋">衣類ケース・衣装袋</option><option value="スーツケース">スーツケース</option><option value="ゴルフバッグ">ゴルフバッグ</option><option value="その他の箱・袋">その他の箱・袋</option></optgroup><optgroup label="その他"><option value="観葉植物">観葉植物</option><option value="ベビーカー">ベビーカー</option><option value="チャイルドシート">チャイルドシート</option><option value="ペット用品">ペット用品</option><option value="楽器">楽器</option><option value="アウトドア用品">アウトドア用品</option><option value="スポーツ用品">スポーツ用品</option><option value="工具・作業用品">工具・作業用品</option><option value="その他">その他</option></optgroup>
+  </select>
+  <input id="itemQty" type="number" min="1" value="1" inputmode="numeric" aria-label="数量">
+</div>
+<button type="button" class="action" id="addItem">荷物を追加</button>
+<div id="itemList" style="margin-top:10px;"></div>
+</section>
+
+<section class="card">
+<h2>距離</h2>
+<div id="distanceText">出発地・到着地を入力すると道路距離を計算します。</div>
+<div id="distanceFee" class="address" style="margin-top:10px;">距離料金：未計算</div>
+<p class="note">20kmまで無料。20kmを超えた分は1kmにつき250円。料金計算では距離を小数点以下切り捨てします。</p>
+</section>
+
+<section class="card">
+<h2>現在の見積もり</h2>
+<div class="total" id="total">8,000円〜</div>
+<div class="price-detail" id="breakdown">日程・荷物・階数・距離を入力すると内訳が表示されます。</div>
+</section>
+</div>
+
+<script>
+(function(){
+  let plan="oki";
+  const oki=document.getElementById("oki"), raku=document.getElementById("raku"), total=document.getElementById("total");
+  const selectedItems=[];
+  const holidays={};
+
+  const prices={
+    "冷蔵庫（〜200L）":0,"冷蔵庫（201〜300L）":500,"冷蔵庫（301〜400L）":1000,"冷蔵庫（401L〜）":2000,
+    "洗濯機（縦型）":500,"洗濯機（ドラム式）":1500,"乾燥機":1000,"電子レンジ":300,"オーブンレンジ":500,"食器洗い乾燥機":1000,
+    "エアコン室内機":1000,"エアコン室外機":1000,"テレビ（〜32インチ）":300,"テレビ（33〜50インチ）":500,"テレビ（51インチ〜）":1000,
+    "ベッド（シングル）":500,"ベッド（セミダブル）":1000,"ベッド（ダブル）":1500,"ベッド（クイーン・キング）":2000,
+    "マットレス（シングル）":300,"マットレス（セミダブル）":500,"マットレス（ダブル）":700,"マットレス（クイーン・キング）":1000,
+    "ソファ（1人掛け）":500,"ソファ（2〜3人掛け）":1000,"ソファ（4人掛け以上）":1500,"ダイニングテーブル":500,"ローテーブル":300,
+    "デスク・学習机":500,"チェア・イス":200,"テレビ台":300,"タンス・チェスト":700,"衣装ケース":200,"カラーボックス":200,
+    "本棚・ラック":500,"食器棚":1000,"レンジ台":500,"収納棚":500,"ドレッサー":700,"こたつ":300,"鏡・姿見":300,"その他家具":500,
+    "炊飯器":200,"掃除機":200,"扇風機・サーキュレーター":200,"空気清浄機":300,"加湿器":200,"除湿機":300,"ヒーター・ストーブ":300,
+    "衣類乾燥除湿機":500,"パソコン・モニター":300,"プリンター":300,"ゲーム機":200,"スピーカー":300,"自転車":500,"その他家電・生活用品":300,
+    "60サイズ段ボール":200,"80サイズ段ボール":300,"100サイズ段ボール":400,"120サイズ段ボール":500,"140サイズ段ボール":700,
+    "布団・寝具":500,"衣類ケース・衣装袋":200,"スーツケース":300,"ゴルフバッグ":300,"その他の箱・袋":200,
+    "観葉植物":300,"ベビーカー":300,"チャイルドシート":300,"ペット用品":300,"楽器":500,"アウトドア用品":500,"スポーツ用品":300,
+    "工具・作業用品":500,"その他":500
+  };
+
+  function setPlan(p){
+    plan=p;
+    oki.classList.toggle("selected",p==="oki");
+    raku.classList.toggle("selected",p==="raku");
+    calc();
+  }
+  oki.addEventListener("click",()=>setPlan("oki"));
+  raku.addEventListener("click",()=>setPlan("raku"));
+
+  ["fromFloor","toFloor"].forEach(id=>{
+    const s=document.getElementById(id);
+    for(let i=1;i<=24;i++){
+      const o=document.createElement("option");
+      o.value=i;o.textContent=i+"階";s.appendChild(o);
+    }
+  });
+
+  function zipLookup(zip,target){
+    const z=zip.replace(/[^0-9]/g,"");
+    if(z.length!==7){alert("郵便番号は7桁で入力してください。");return;}
+    target.textContent="住所を取得中…";
+    const old=document.getElementById("jpzip-script");
+    if(old)old.remove();
+    const script=document.createElement("script");
+    script.id="jpzip-script";
+    const cb="jpzip_"+Date.now();
+    window[cb]=function(data){
+      try{
+        if(data&&data.results&&data.results[0]){
+          const r=data.results[0];
+          target.textContent=(r.address1||"")+(r.address2||"")+(r.address3||"");
+          target.dataset.address=(r.address1||"")+(r.address2||"")+(r.address3||"");
+        }else target.textContent="住所が見つかりませんでした";
+      }finally{delete window[cb];script.remove();calc();}
+    };
+    script.src="https://zipcloud.ibsnet.co.jp/api/search?zipcode="+z+"&callback="+cb;
+    script.onerror=function(){target.textContent="住所取得に失敗しました。";delete window[cb];script.remove();};
+    document.body.appendChild(script);
+  }
+  document.getElementById("fromGet").addEventListener("click",()=>zipLookup(document.getElementById("fromZip").value,document.getElementById("fromAddress")));
+  document.getElementById("toGet").addEventListener("click",()=>zipLookup(document.getElementById("toZip").value,document.getElementById("toAddress")));
+
+  const itemSelect=document.getElementById("itemSelect");
+  const itemQty=document.getElementById("itemQty");
+  const itemList=document.getElementById("itemList");
+
+  function renderItems(){
+    itemList.innerHTML="";
+    if(!selectedItems.length){
+      itemList.innerHTML='<div class="note">まだ荷物が選択されていません。</div>';
+      calc(); return;
+    }
+    selectedItems.forEach((item,index)=>{
+      const row=document.createElement("div");
+      row.className="item-row";
+      row.innerHTML='<div class="item-name">'+item.name+'</div><div class="item-qty">'+item.qty+'</div><button type="button" class="remove-item" aria-label="削除">×</button>';
+      row.querySelector(".remove-item").addEventListener("click",()=>{selectedItems.splice(index,1);renderItems();});
+      itemList.appendChild(row);
+    });
+    calc();
+  }
+
+  document.getElementById("addItem").addEventListener("click",()=>{
+    const name=itemSelect.value;
+    const qty=Math.max(1,parseInt(itemQty.value||"1",10));
+    if(!name){alert("荷物を選択してください。");return;}
+    const existing=selectedItems.find(x=>x.name===name);
+    if(existing)existing.qty+=qty; else selectedItems.push({name,qty});
+    itemSelect.value=""; itemQty.value="1"; renderItems();
+  });
+  renderItems();
+
+  const distanceText=document.getElementById("distanceText");
+  const distanceFee=document.getElementById("distanceFee");
+  let roadKm=null, distanceTimer=null;
+
+  function fullAddress(prefix){
+    const base=document.getElementById(prefix+"Address").dataset.address||"";
+    const detail=document.getElementById(prefix+"Detail").value.trim();
+    return (base+detail).trim();
+  }
+
+  async function normalizeJapaneseAddress(address){
+    const mod=await import("https://cdn.jsdelivr.net/npm/@geolonia/normalize-japanese-addresses@3.1.3/+esm");
+    return await mod.normalize(address);
+  }
+
+  async function calculateRoadDistance(){
+    const from=fullAddress("from"),to=fullAddress("to");
+    if(!from||!to){
+      roadKm=null;
+      distanceText.textContent="出発地・到着地を入力すると道路距離を計算します。";
+      distanceFee.textContent="距離料金：未計算";
+      calc(); return;
+    }
+    distanceText.textContent="道路距離を計算中…";
+    distanceFee.textContent="距離料金：計算中…";
+    try{
+      const [a,b]=await Promise.all([normalizeJapaneseAddress(from),normalizeJapaneseAddress(to)]);
+      if(!a?.point||!b?.point)throw new Error("住所を特定できませんでした");
+      const url="https://router.project-osrm.org/route/v1/driving/"+a.point.lng+","+a.point.lat+";"+b.point.lng+","+b.point.lat+"?overview=false";
+      const response=await fetch(url);
+      if(!response.ok)throw new Error("道路距離APIエラー");
+      const data=await response.json();
+      if(data.code!=="Ok"||!data.routes?.[0])throw new Error("ルートが見つかりませんでした");
+      roadKm=data.routes[0].distance/1000;
+      const billedKm=Math.floor(roadKm);
+      const extraKm=Math.max(0,billedKm-20);
+      const fee=extraKm*250;
+      distanceText.innerHTML="道路距離：<strong>"+roadKm.toFixed(1)+"km</strong><br><span class='note'>料金計算上は"+billedKm+"kmとして計算</span>";
+      distanceFee.innerHTML="距離料金：<strong>"+fee.toLocaleString()+"円</strong>"+(billedKm<=20?"（20kmまで無料）":"（"+extraKm+"km × 250円）");
+      calc();
+    }catch(e){
+      console.error(e); roadKm=null;
+      distanceText.textContent="道路距離を計算できませんでした。住所を確認してください。";
+      distanceFee.textContent="距離料金：計算できませんでした";
+      calc();
+    }
+  }
+
+  function scheduleDistance(){clearTimeout(distanceTimer);distanceTimer=setTimeout(calculateRoadDistance,500);}
+  ["fromZip","toZip","fromDetail","toDetail"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener("input",scheduleDistance);
+    el.addEventListener("change",scheduleDistance);
+    el.addEventListener("blur",scheduleDistance);
+  });
+
+  // 郵便番号から住所を取得した後も、道路距離を確実に再計算
+  document.getElementById("fromGet").addEventListener("click",()=>setTimeout(calculateRoadDistance,1800));
+  document.getElementById("toGet").addEventListener("click",()=>setTimeout(calculateRoadDistance,1800));
+
+  ["fromAddress","toAddress"].forEach(id=>{
+    new MutationObserver(()=>scheduleDistance()).observe(
+      document.getElementById(id),
+      {childList:true,subtree:true,characterData:true}
+    );
+  });
+
+  ["fromFloor","toFloor"].forEach(id=>document.getElementById(id).addEventListener("change",calc));
+
+  ["date1","date2","date3","time1","time2","time3"].forEach(id=>document.getElementById(id).addEventListener("change",calc));
+
+  async function loadHolidays(){
+    try{
+      const r=await fetch("https://holidays-jp.github.io/api/date.json",{cache:"force-cache"});
+      if(r.ok){
+        const data=await r.json();
+        Object.keys(data).forEach(k=>holidays[k]=data[k]);
+      }
+    }catch(e){console.warn("祝日データ取得失敗",e);}
+    calc();
+  }
+
+  function getFirstDate(){
+    return document.getElementById("date1").value||document.getElementById("date2").value||document.getElementById("date3").value||"";
+  }
+
+  function multiplierForDate(dateStr){
+    if(!dateStr)return 1;
+    const d=new Date(dateStr+"T00:00:00+09:00");
+    let m=(d.getMonth()+1)===2||((d.getMonth()+1)===3)?1.2:((d.getMonth()+1)===4?1.1:1);
+    const weekend=d.getDay()===0||d.getDay()===6;
+    const holiday=!!holidays[dateStr];
+    if(weekend||holiday)m*=1.2;
+    return m;
+  }
+
+  function dateLabel(dateStr){
+    if(!dateStr)return "";
+    const d=new Date(dateStr+"T00:00:00+09:00");
+    const w=["日","月","火","水","木","金","土"][d.getDay()];
+    const holiday=holidays[dateStr];
+    return dateStr.replaceAll("-","/")+"（"+w+"）"+(holiday?"・"+holiday:"");
+  }
+
+  function calc(){
+    const base=plan==="oki"?8000:10000;
+    const itemMultiplier=plan==="oki"?1:2;
+    let itemCharges=[];
+    selectedItems.forEach(x=>{
+      const p=(prices[x.name]??0)*itemMultiplier;
+      for(let i=0;i<x.qty;i++)itemCharges.push(p);
+    });
+    // 選択した荷物は1点目から料金に反映
+    const itemTotal=itemCharges.reduce((a,b)=>a+b,0);
+
+    const fromFloor=Math.max(0,Number(document.getElementById("fromFloor").value||1)-1);
+    const toFloor=Math.max(0,Number(document.getElementById("toFloor").value||1)-1);
+    const floorRate=plan==="oki"?500:1000;
+    const floorFee=(fromFloor+toFloor)*floorRate;
+
+    const workSubtotal=Math.min(plan==="oki"?18000:21000,base+itemTotal+floorFee);
+    const date=getFirstDate();
+    const multiplier=multiplierForDate(date);
+    const seasonalWork=Math.round(workSubtotal*multiplier);
+
+    const billedKm=roadKm==null?0:Math.floor(roadKm);
+    const distance= Math.max(0,billedKm-20)*250;
+    const grand=seasonalWork+distance;
+
+    total.textContent=grand.toLocaleString()+"円〜";
+
+    let note=[];
+    note.push("基本料金："+base.toLocaleString()+"円");
+    if(selectedItems.length){
+      note.push("荷物料金："+itemTotal.toLocaleString()+"円");
+    }else{
+      note.push("荷物を1点追加すると、その荷物料金が見積金額に反映されます。");
+    }
+    if(floorFee)note.push("階数料金："+floorFee.toLocaleString()+"円");
+    if(distance)note.push("距離料金："+distance.toLocaleString()+"円");
+    if(date)note.push(dateLabel(date)+"を基準に料金計算");
+    else note.push("第1希望の日程を入力すると、土日祝・繁忙期料金を反映します。");
+    note.push("作業料金上限："+(plan==="oki"?"18,000":"21,000")+"円");
+    document.getElementById("breakdown").innerHTML=note.join("<br>");
+  }
+
+  // 今日より前の日付は選択できない
+  const today=new Date();
+  const yyyy=today.getFullYear(),mm=String(today.getMonth()+1).padStart(2,"0"),dd=String(today.getDate()).padStart(2,"0");
+  ["date1","date2","date3"].forEach(id=>document.getElementById(id).min=yyyy+"-"+mm+"-"+dd);
+
+  // 同じ日付の重複は入力時に警告
+  ["date1","date2","date3"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{
+    const vals=["date1","date2","date3"].map(x=>document.getElementById(x).value).filter(Boolean);
+    if(new Set(vals).size!==vals.length)alert("希望日は同じ日付を重複して選択できません。");
+    calc();
+  }));
+
+  calc();
+  loadHolidays();
+})();
+</script>
+</body>
+</html>
